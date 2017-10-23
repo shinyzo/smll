@@ -35,10 +35,7 @@
       selectFoods: {
         type: Array,
         default() {
-          return [{
-            price: 1,
-            count: 10
-          }];
+          return [];
         }
       }
     },
@@ -152,9 +149,9 @@
           display: inline-block
           vertical-align: top
           line-height: 24px
-          margin-left: 12px
           margin-top: 12px
           font-size: 10px
+          margin-left: 12px
       .content-right
         flex: 0 0 105px
         width: 105px

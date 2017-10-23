@@ -33,6 +33,9 @@
                   <span class="now">¥{{food.price}}</span>
                   <span v-show="food.oldPrice" class="old">¥{{food.oldPrice}}</span>
                 </div>
+                <div class="cartcontrol-wrapper">
+                  <v-cartcontrol :food="food"></v-cartcontrol>
+                </div>
 
               </div>
             </li>
@@ -44,12 +47,13 @@
 
       </ul>
     </div>
-    <v-shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></v-shopcart>
+    <v-shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></v-shopcart>
   </div>
 </template>
 <script type="text/ecmascript-6">
   import BScroll from 'better-scroll';
   import shopcart from 'components/shopcart/shopcart';
+  import cartcontrol from 'components/cartcontrol/cartcontrol';
 
   const ERR_OK = 0;
   export default {
@@ -94,6 +98,17 @@
         }
         ;
         return 0;
+      },
+      selectFoods() {
+        let foods = [];
+        this.goods.forEach((good) => {
+          good.foods.forEach((food) => {
+            if (food.count) {
+              foods.push(food);
+            }
+          });
+        });
+        return foods;
       }
     },
     methods: {
@@ -112,6 +127,7 @@
           click: true
         });
         this.foodsScroll = new BScroll(this.$els.foodsWrapper, {
+          click: true,
           probeType: 3
         });
         // 监听滚动的时候实时得到scrollY
@@ -133,7 +149,8 @@
 
     },
     components: {
-      'v-shopcart': shopcart
+      'v-shopcart': shopcart,
+      'v-cartcontrol': cartcontrol
     }
   };
 </script>
@@ -239,4 +256,8 @@
               font-size: 10px
               color: rgb(147, 153, 159)
 
+          .cartcontrol-wrapper
+            position: absolute
+            right: 0
+            bottom: 10px
 </style>
