@@ -18,13 +18,13 @@
         <li v-for="item in goods" class="food-list food-list-hook">
           <h2 class="title">{{item.name}}</h2>
           <ul>
-            <li v-for="food in item.foods" class="food-item border-1px">
-              <div class="icon">
+            <li v-for="food in item.foods"  class="food-item border-1px">
+              <div class="icon" @click="selectFood(food,$event)">
                 <img width="57" height="57" :src="food.icon"/>
 
               </div>
               <div class="content">
-                <h2 class="name">{{food.name}}</h2>
+                <h2 class="name"  @click="selectFood(food,$event)">{{food.name}}</h2>
                 <p class="desc">{{food.description}}</p>
                 <div class="extra">
                   <span class="count">月售{{food.sellCount}}份</span> <span>好评率{{food.rating}}%</span>
@@ -38,6 +38,7 @@
                 </div>
 
               </div>
+
             </li>
           </ul>
 
@@ -47,13 +48,16 @@
 
       </ul>
     </div>
-    <v-shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></v-shopcart>
+    <v-shopcart v-ref:shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice"
+                :min-price="seller.minPrice"></v-shopcart>
   </div>
+  <v-fooddetail :food="selectedFood" v-ref:fooddetail></v-fooddetail>
 </template>
 <script type="text/ecmascript-6">
   import BScroll from 'better-scroll';
   import shopcart from 'components/shopcart/shopcart';
   import cartcontrol from 'components/cartcontrol/cartcontrol';
+  import fooddetail from 'components/fooddetail/fooddetail';
 
   const ERR_OK = 0;
   export default {
@@ -67,7 +71,8 @@
         goods: [],
         classMap: [],
         listHeight: [],
-        scrollY: 0
+        scrollY: 0,
+        selectedFood: {}
       };
     },
     created() {
@@ -112,6 +117,14 @@
       }
     },
     methods: {
+      selectFood(food, event) {
+        if (!event._constructed) {
+          return;
+        }
+        this.selectedFood = food;
+        // 调用子组件方法
+        this.$refs.fooddetail.show();
+      },
       selectMenu(index, event) {
         // best-scroll内置对象不存在 就返回
         if (!event._constructed) {
@@ -121,6 +134,12 @@
         let foodList = this.$els.foodsWrapper.getElementsByClassName('food-list-hook');
         let el = foodList[index];
         this.foodsScroll.scrollToElement(el, 300);
+      },
+      _drop(target) {
+        // 优化体验，异步执行下落动画
+        this.$nextTick(() => {
+          this.$refs.shopcart.drop(target);
+        });
       },
       _initScroll() {
         this.menuScroll = new BScroll(this.$els.menuWrapper, {
@@ -150,7 +169,13 @@
     },
     components: {
       'v-shopcart': shopcart,
-      'v-cartcontrol': cartcontrol
+      'v-cartcontrol': cartcontrol,
+      'v-fooddetail': fooddetail
+    },
+    events: {
+      'cart.add'(target) {
+        this._drop(target);
+      }
     }
   };
 </script>
